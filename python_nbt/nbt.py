@@ -2,8 +2,8 @@ from struct import Struct, error as StructError
 from gzip import GzipFile
 import copy
 
-# from .python_nbt import nbt_util as _util
-# import _util
+import pysnooper
+
 from . import _util
 
 TAG_END         =  0
@@ -243,15 +243,15 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
 
     def _read_buffer(self, buffer):
         while True:
-            _type = NBTTagByte(buffer=buffer)
-            if _type.value == TAG_END:
+            _type = NBTTagByte(buffer=buffer).value
+            if _type == TAG_END:
                 break
             else:
                 name = NBTTagString(buffer=buffer).value
-                if not _type.value in TAGLIST.keys():
-                    raise ValueError("Unrecognised tag type %d" % type.value)
-                tag = TAGLIST[_type.value]
-                self[name] = tag(buffer=buffer)
+                if not _type in TAGLIST.keys():
+                    raise ValueError("Unrecognised tag type %d" % _type)
+                tag = TAGLIST[_type](buffer=buffer)
+                self[name] = tag
 
     def _write_buffer(self, buffer):
         for key, tag in self.items():
@@ -262,8 +262,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     def _value_json_obj(self):
         result = {}
         for key, value in self.items():
-            print(key, ":", value)
-            result[key] = value.json_obj()
+            result[key] = value.json_obj
         return result
 
 
@@ -417,14 +416,16 @@ TAG_Long_Array = NBTTagLongArray
 TAG_String     = NBTTagString
 TAG_List       = NBTTagList
 TAG_Compound   = NBTTagCompound
-TAG_END        = NBTTagEnd
+TAG_End        = NBTTagEnd
 
 def read_from_nbt_file(file):
     """
     Read NBTTagCompound from a NBT file
     """
     _file = GzipFile(file, "rb") if isinstance(file, str) else GzipFile(fileobj=file, mode="rb")
-    return NBTTagCompound(buffer=_file)
+    _type = NBTTagByte(buffer=_file).value
+    _name = NBTTagString(buffer=_file).value
+    return TAGLIST[_type](buffer=_file)
 
 def write_to_nbt_file(file, tag:NBTTagCompound, name=''):
     """
