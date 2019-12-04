@@ -1,6 +1,5 @@
 from struct import Struct, error as StructError
 from gzip import GzipFile
-import copy
 
 from . import _util
 
