@@ -1,7 +1,6 @@
 from struct import Struct, error as StructError
 from gzip import GzipFile
-from collections import MutableMapping, MutableSequence, Sequence
-import sys, json, copy
+import copy
 
 # from .python_nbt import nbt_util as _util
 # import _util
@@ -54,8 +53,7 @@ class NBTTagBase:
     @property
     def json_obj(self):
         """
-        Defines json format of NBT tags.
-        Do not override this!
+        Return json format object of this NBT tag.
         """
         return {"type_id":self.type_id, "value": self._value_json_obj()}
 
@@ -418,6 +416,20 @@ TAG_List       = NBTTagList
 TAG_Compound   = NBTTagCompound
 TAG_END        = NBTTagEnd
 
-class NBTFile(NBTTagCompound):
-    pass
-    # TODO: implementation
+def read_from_nbt_file(file):
+    """
+    Read NBTTagCompound from a NBT file
+    """
+    _file = GzipFile(file, "rb") if isinstance(file, str) else GzipFile(fileobj=file, mode="rb")
+    return NBTTagCompound(buffer=_file.read())
+
+def write_to_nbt_file(file, tag:NBTTagCompound, name=''):
+    """
+    Write a NBTTagCompound to a NBT file
+    name affects nothing currently
+    """
+    _file = GzipFile(file, "wb") if isinstance(file, str) else GzipFile(fileobj=file, mode="wb")
+    NBTTagByte(tag.type_id)._write_buffer(_file)
+    NBTTagString(name)._write_buffer(_file)
+    tag._write_buffer(_file)
+
