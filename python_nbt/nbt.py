@@ -2,8 +2,6 @@ from struct import Struct, error as StructError
 from gzip import GzipFile
 import copy
 
-import pysnooper
-
 from . import _util
 
 TAG_END         =  0
