@@ -61,7 +61,7 @@ class NBTTagBase:
         return self.json_obj.__repr__()
 
 
-class _TAG_End(NBTTagBase):
+class NBTTagEnd(NBTTagBase):
     tag_type = TAG_END
     fmt = Struct(">b")
 
@@ -69,7 +69,8 @@ class _TAG_End(NBTTagBase):
         value = self.fmt.unpack(buffer.read(1))[0]
         if value != 0:
             raise ValueError(
-                "A Tag End must be rendered as '0', not as '%d'." % value)
+                "A Tag End must be rendered as '0', not as '%d'." % value
+            )
 
     def _write_buffer(self, buffer):
         buffer.write(b'\x00')
@@ -354,13 +355,25 @@ class NBTTagList(NBTTagContainerList):
         return [tag._value_json_obj() for tag in self.value]
 
 
-TAGLIST = {TAG_END: _TAG_End, TAG_BYTE: NBTTagByte, TAG_SHORT: NBTTagShort,
-           TAG_INT: NBTTagInt, TAG_LONG: NBTTagLong, TAG_FLOAT: NBTTagFloat,
-           TAG_DOUBLE: NBTTagDouble, TAG_BYTE_ARRAY: NBTTagByteArray,
-           TAG_STRING: NBTTagString, TAG_LIST: NBTTagList,
-           TAG_COMPOUND: NBTTagCompound, TAG_INT_ARRAY: NBTTagIntArray,
-           TAG_LONG_ARRAY: NBTTagLongArray}
+TAGLIST = {
+    TAG_END         : NBTTagEnd, 
+    TAG_BYTE        : NBTTagByte, 
+    TAG_SHORT       : NBTTagShort,
+    TAG_INT         : NBTTagInt, 
+    TAG_LONG        : NBTTagLong, 
+    TAG_FLOAT       : NBTTagFloat,
+    TAG_DOUBLE      : NBTTagDouble, 
+    TAG_BYTE_ARRAY  : NBTTagByteArray,
+    TAG_STRING      : NBTTagString, 
+    TAG_LIST        : NBTTagList,
+    TAG_COMPOUND    : NBTTagCompound,
+    TAG_INT_ARRAY   : NBTTagIntArray,
+    TAG_LONG_ARRAY  : NBTTagLongArray
+}
 
+
+# Map Minecraft Wiki names to class names
+# For compatibility
 TAG            = NBTTagBase
 TAG_Byte       = NBTTagByte
 TAG_Short      = NBTTagShort
@@ -374,3 +387,4 @@ TAG_Long_Array = NBTTagLongArray
 TAG_String     = NBTTagString
 TAG_List       = NBTTagList
 TAG_Compound   = NBTTagCompound
+TAG_END        = NBTTagEnd
