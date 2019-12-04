@@ -22,9 +22,14 @@ TAG_INT_ARRAY   = 11
 TAG_LONG_ARRAY  = 12
 
 class NBTTagBase:
+
     _type_id = None
 
     def __init__(self, value=None, buffer=None):
+        """
+        Don't use this
+        This is just for code reuse
+        """
         self._value = value
         if buffer:
             self._read_buffer(buffer)
@@ -46,12 +51,12 @@ class NBTTagBase:
     def _value_json_obj(self):
         return self.value
 
-    """
-    Defines json format of NBT tags.
-    Do not override this!
-    """
     @property
     def json_obj(self):
+        """
+        Defines json format of NBT tags.
+        Do not override this!
+        """
         return {"type_id":self.type_id, "value": self._value_json_obj()}
 
     def __str__(self):
@@ -62,6 +67,10 @@ class NBTTagBase:
 
 
 class NBTTagEnd(NBTTagBase):
+    """
+    This is just for File I/O
+    """
+    
     tag_type = TAG_END
     fmt = Struct(">b")
 
@@ -77,6 +86,10 @@ class NBTTagEnd(NBTTagBase):
 
 
 class NBTTagSingleValue(NBTTagBase):
+    """
+    Just for code reuse
+    """
+
     fmt = None
 
     def __init__(self, value=None, buffer=None):
@@ -106,7 +119,10 @@ class NBTTagSingleValue(NBTTagBase):
 
 
 class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
-
+    """
+    Just for code reuse and better interfaces
+    """
+    
     def __init__(self, validator, buffer=None):
         _util.TypeRestrictedList.__init__(self, validator=validator)
         if buffer:
@@ -120,6 +136,8 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
         return self[:]
 
 
+# == Actual NBT tag types from here ==
+
 class NBTTagByte(NBTTagSingleValue):
 
     _type_id = TAG_BYTE
@@ -130,6 +148,7 @@ class NBTTagByte(NBTTagSingleValue):
     
     def _validate(self, v):
         return isinstance(v, int) and v in range(-0x80, 0x80)
+
 
 class NBTTagShort(NBTTagSingleValue):
 
@@ -166,7 +185,9 @@ class NBTTagLong(NBTTagSingleValue):
     def _validate(self, v):
         return isinstance(v, int) and v in range(-0x8000000000000000, 0x8000000000000000)
 
+
 class NBTTagFloat(NBTTagSingleValue):
+
     _type_id = TAG_FLOAT
     fmt = Struct(">f")
 
@@ -178,6 +199,7 @@ class NBTTagFloat(NBTTagSingleValue):
 
 
 class NBTTagDouble(NBTTagSingleValue):
+
     _type_id = TAG_FLOAT
     fmt = Struct(">d")
 
@@ -189,13 +211,14 @@ class NBTTagDouble(NBTTagSingleValue):
 
 
 class NBTTagString(NBTTagSingleValue):
+
     _type_id = TAG_STRING
 
     def __init__(self, value="", buffer=None):
         super().__init__(value=value, buffer=buffer)
 
     def _validate(self, v):
-        return isinstance(v,str)
+        return isinstance(v, str) and len(self.value) < 0x8000
 
     def _read_buffer(self, buffer):
         length = NBTTagShort(buffer=buffer).value
@@ -209,6 +232,7 @@ class NBTTagString(NBTTagSingleValue):
         length = NBTTagShort(len(byte_code))
         length._write_buffer(buffer)
         buffer.write(byte_code)
+
 
 class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
 
@@ -314,6 +338,11 @@ class NBTTagList(NBTTagContainerList):
     _type_id = TAG_LIST
 
     def __init__(self, tag_type=None, buffer=None):
+        """
+        If you are creating a NBTTagList ypurself,
+        Please specify a tag_type (must be a subclass of NBTTagBase)
+        """
+
         if tag_type:
             self._tag_type_id = tag_type.type_id
         else:
@@ -388,3 +417,7 @@ TAG_String     = NBTTagString
 TAG_List       = NBTTagList
 TAG_Compound   = NBTTagCompound
 TAG_END        = NBTTagEnd
+
+class NBTFile(NBTTagCompound):
+    pass
+    # TODO: implementation
