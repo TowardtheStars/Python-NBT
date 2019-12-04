@@ -1,3 +1,4 @@
 *.pyc
 ref
 *.egg-info
+logs
