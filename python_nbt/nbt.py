@@ -4,7 +4,7 @@ import copy
 
 # from .python_nbt import nbt_util as _util
 # import _util
-import _util
+from . import _util
 
 TAG_END         =  0
 TAG_BYTE        =  1
@@ -122,7 +122,7 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
     """
     
     def __init__(self, validator, buffer=None):
-        _util.TypeRestrictedList.__init__(self, validator=validator)
+        _util.RestrictedList.__init__(self, validator=validator)
         if buffer:
             self._read_buffer(buffer)
 
@@ -238,6 +238,8 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     
     def __init__(self, buffer=None):
         _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
+        if buffer:
+            self._read_buffer(buffer)
 
     def _read_buffer(self, buffer):
         while True:
@@ -260,6 +262,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     def _value_json_obj(self):
         result = {}
         for key, value in self.items():
+            print(key, ":", value)
             result[key] = value.json_obj()
         return result
 
@@ -421,7 +424,7 @@ def read_from_nbt_file(file):
     Read NBTTagCompound from a NBT file
     """
     _file = GzipFile(file, "rb") if isinstance(file, str) else GzipFile(fileobj=file, mode="rb")
-    return NBTTagCompound(buffer=_file.read())
+    return NBTTagCompound(buffer=_file)
 
 def write_to_nbt_file(file, tag:NBTTagCompound, name=''):
     """

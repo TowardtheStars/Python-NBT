@@ -8,9 +8,9 @@ setup(
   author           = 'TowardtheStars',
   author_email     = 'hty16@mail.ustc.edu.cn',
   url              = 'https://github.com/TowardtheStars/Python-NBT',
-  license          = open("LICENSE.txt").read(),
+  license          = open("LICENSE").read(),
   long_description = open("README.txt").read(),
-  packages         = ['Python-NBT'],
+  packages         = ['python_nbt'],
   classifiers      = [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
