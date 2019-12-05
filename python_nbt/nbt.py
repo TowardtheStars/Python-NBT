@@ -47,18 +47,22 @@ class NBTTagBase:
     def _value_json_obj(self):
         return self.value
 
-    @property
-    def json_obj(self):
+    def json_obj(self, full_json=True:bool):
         """
         Return json format object of this NBT tag.
+        full_json is True by default, which indicates it will export json with this tag's type id
+            set to False to get a cleaner json object
         """
-        return {"type_id":self.type_id, "value": self._value_json_obj()}
+        if full_json:
+            return {"type_id":self.type_id, "value": self._value_json_obj()}
+        else:
+            return self._value_json_obj()
 
     def __str__(self):
-        return str(self.json_obj)
+        return str(self.json_obj())
 
     def __repr__(self):
-        return self.json_obj.__repr__()
+        return self.json_obj().__repr__()
 
 
 class NBTTagEnd(NBTTagBase):
@@ -263,7 +267,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     def _value_json_obj(self):
         result = {}
         for key, value in self.items():
-            result[key] = value.json_obj
+            result[key] = value.json_obj()
         return result
 
 
