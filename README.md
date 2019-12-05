@@ -54,9 +54,9 @@ If you want to export NBT in json, you can use `NBTTagBase.json_obj` to get an j
 - [ ] More json compat
   - [ ] Convert json into NBT
   - [ ] Better and configurable json output (omitting NBT types)
-- [ ] Convinient classes for reading mca files
+- [ ] Convenient classes for reading mca files
   - [ ] World
   - [ ] Region
   - [ ] Chunk
-- [ ] Convinient classes for mods
+- [ ] Convenient classes for mods
   - [ ] FTB Quests
