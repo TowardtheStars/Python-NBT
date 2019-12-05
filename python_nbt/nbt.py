@@ -249,7 +249,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
             else:
                 name = NBTTagString(buffer=buffer).value
                 if not _type in TAGLIST.keys():
-                    raise ValueError("Unrecognised tag type %d" % _type)
+                    raise ValueError("Unrecognized tag type %d" % _type)
                 tag = TAGLIST[_type](buffer=buffer)
                 self[name] = tag
 
@@ -340,7 +340,7 @@ class NBTTagList(NBTTagContainerList):
 
     def __init__(self, tag_type=None, buffer=None):
         """
-        If you are creating a NBTTagList ypurself,
+        If you are creating a NBTTagList yourself,
         Please specify a tag_type (must be a subclass of NBTTagBase)
         """
 
