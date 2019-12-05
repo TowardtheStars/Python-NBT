@@ -3,3 +3,5 @@ ref
 *.egg-info
 logs
 __pycache__
+build
+dist
