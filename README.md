@@ -45,7 +45,7 @@ The first argument `file` should be a path string or a file stream to the file y
 
 ### Compat with Json
 
-If you want to export NBT in json, you can use `NBTTagBase.json_obj(full_json=True)` to get an json style `dict` that contains all the NBT information. After that, you can use `json` module in Python to do whatever you want. If you want a simplyer version, which omits type id of an NBT, set `full_json` to `False`.
+If you want to export NBT in json, you can use `NBTTagBase.json_obj(full_json=True)` to get an json style `dict` that contains all the NBT information. After that, you can use `json` module in Python to do whatever you want. If you want a simpler version, which omits type id of an NBT, set `full_json` to `False`.
 
 If you want to import NBT from a json object, you can use `nbt.from_json(json_obj)` to do so. This function will return an NBT object. And its parameter must be as same format as what `NBTTagBase.json_obj(full_json=True)` exports.
 
@@ -56,7 +56,7 @@ If you want to import NBT from a json object, you can use `nbt.from_json(json_ob
 - [ ] More json compat
   - [x] Convert json into NBT
   - [x] Better and configurable json output (omitting NBT types)
-- [ ] Convinient classes for reading and writing Minecraft saves files
+- [ ] Convenient classes for reading and writing Minecraft saves files
   - [ ] World
   - [ ] Region
   - [ ] Chunk
@@ -65,6 +65,6 @@ If you want to import NBT from a json object, you can use `nbt.from_json(json_ob
   - [ ] Entity
   - [ ] Player
 - [ ] Utilities for mods
-  - [ ] [FTB Quests](https://github.com/FTBTeam/FTB-Quests) [curseforge](https://www.curseforge.com/minecraft/mc-mods/ftb-quests)
-  - [ ] [GameStages](https://github.com/Darkhax-Minecraft/Game-Stages) [curseforge](https://minecraft.curseforge.com/projects/game-stages)
+  - [ ] [FTB Quests](https://github.com/FTBTeam/FTB-Quests) [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ftb-quests)
+  - [ ] [GameStages](https://github.com/Darkhax-Minecraft/Game-Stages) [CurseForge](https://minecraft.curseforge.com/projects/game-stages)
   - [ ] Recognize blocks and items form mods in World according to NEI exports

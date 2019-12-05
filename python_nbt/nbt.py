@@ -258,7 +258,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
             else:
                 name = NBTTagString(buffer=buffer).value
                 if not _type in TAGLIST.keys():
-                    raise ValueError("Unrecognised tag type %d" % _type)
+                    raise ValueError("Unrecognized tag type %d" % _type)
                 tag = TAGLIST[_type](buffer=buffer)
                 self[name] = tag
 
@@ -365,7 +365,7 @@ class NBTTagList(NBTTagContainerList):
 
     def __init__(self, tag_type=None, buffer=None):
         """
-        If you are creating a NBTTagList ypurself,
+        If you are creating a NBTTagList yourself,
         Please specify a tag_type (must be a subclass of NBTTagBase)
         """
 
@@ -479,7 +479,7 @@ def write_to_nbt_file(file, tag:NBTTagCompound, name=''):
 def from_json(json_obj):
     type_id = json_obj['type_id']
     if type_id not in TAGLIST.keys():
-        raise ValueError("Unrecognised tag type %d" % type.value)
+        raise ValueError("Unrecognized tag type %d" % type.value)
     tag = TAGLIST[type_id]()
     tag._value_from_json(json_obj)
 
