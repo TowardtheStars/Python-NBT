@@ -64,6 +64,8 @@ class NBTTagBase:
     def __repr__(self):
         return self.json_obj().__repr__()
 
+    def _value_from_json(self, json_value):
+        pass
 
 class NBTTagEnd(NBTTagBase):
     """
@@ -118,6 +120,9 @@ class NBTTagSingleValue(NBTTagBase):
 
     def _value_json_obj(self):
         return self.value
+
+    def _value_from_json(self, json_obj):
+        self.value = json_obj['value']
 
 
 class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
@@ -270,6 +275,10 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
             result[key] = value.json_obj()
         return result
 
+    def _value_from_json(self, json_obj):
+        for k, v in json_obj['value'].items():
+            self[k] = from_json(v)
+
 
 class NBTTagByteArray(NBTTagContainerList):
 
@@ -290,6 +299,10 @@ class NBTTagByteArray(NBTTagContainerList):
         length = NBTTagInt(len(self.value))
         length._write_buffer(buffer)
         buffer.write(bytes(self.value))
+
+    def _value_from_json(self, json_obj:
+        self.clear()
+        self.extend(json_obj['value'])
 
 
 class NBTTagIntArray(NBTTagContainerList):
@@ -314,6 +327,10 @@ class NBTTagIntArray(NBTTagContainerList):
         NBTTagInt(length)._write_buffer(buffer)
         buffer.write(fmt.pack(*self.value))
 
+    def _value_from_json(self, json_obj):
+        self.clear()
+        self.extend(json_obj['value'])
+
 
 class NBTTagLongArray(NBTTagContainerList):
 
@@ -336,6 +353,10 @@ class NBTTagLongArray(NBTTagContainerList):
         fmt = Struct(">" + str(length) + "q")
         NBTTagInt(length)._write_buffer(buffer)
         buffer.write(fmt.pack(*self.value))
+
+    def _value_from_json(self, json_obj):
+        self.clear()
+        self.extend(json_obj['value'])
 
 
 class NBTTagList(NBTTagContainerList):
@@ -387,6 +408,19 @@ class NBTTagList(NBTTagContainerList):
 
     def _value_json_obj(self):
         return [tag._value_json_obj() for tag in self.value]
+
+    def json_obj(self, full_json=True):
+        """
+        Add tag type id into result 
+        """
+        r = super().json_obj(self, full_json=False)
+        r['tag_type_id'] = self.tag_type_id
+        return r
+
+    def _value_from_json(self, json_obj):
+        self.clear()
+        self._tag_type_id = json_obj['tag_type_id']
+        self.extend([self.tag_type(v) for v in json_obj['value']])
 
 
 TAGLIST = {
@@ -441,4 +475,11 @@ def write_to_nbt_file(file, tag:NBTTagCompound, name=''):
     NBTTagByte(tag.type_id)._write_buffer(_file)
     NBTTagString(name)._write_buffer(_file)
     tag._write_buffer(_file)
+
+def from_json(json_obj):
+    type_id = json_obj['type_id']
+    if type_id not in TAGLIST.keys():
+        raise ValueError("Unrecognised tag type %d" % type.value)
+    tag = TAGLIST[type_id]()
+    tag._value_from_json(json_obj)
 
