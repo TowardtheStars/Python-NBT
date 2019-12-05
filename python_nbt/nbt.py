@@ -66,8 +66,11 @@ class NBTTagEnd(NBTTagBase):
     This is just for File I/O
     """
     
-    tag_type = TAG_END
+    _type_id = TAG_END
     fmt = Struct(">b")
+
+    def __init__(self):
+        super().__init__()
 
     def _read_buffer(self, buffer):
         value = self.fmt.unpack(buffer.read(1))[0]
@@ -255,6 +258,7 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
             NBTTagByte(value=tag.type_id)._write_buffer(buffer)
             NBTTagString(value=key)._write_buffer(buffer)
             tag._write_buffer(buffer)
+        NBTTagEnd()._write_buffer(buffer)
 
     def _value_json_obj(self):
         result = {}
