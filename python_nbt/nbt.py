@@ -47,7 +47,7 @@ class NBTTagBase:
     def _value_json_obj(self):
         return self.value
 
-    def json_obj(self, full_json=True:bool):
+    def json_obj(self, full_json=True):
         """
         Return json format object of this NBT tag.
         full_json is True by default, which indicates it will export json with this tag's type id
@@ -300,7 +300,7 @@ class NBTTagByteArray(NBTTagContainerList):
         length._write_buffer(buffer)
         buffer.write(bytes(self.value))
 
-    def _value_from_json(self, json_obj:
+    def _value_from_json(self, json_obj):
         self.clear()
         self.extend(json_obj['value'])
 
