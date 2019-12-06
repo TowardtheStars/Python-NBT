@@ -8,13 +8,13 @@ class RestrictedDict(dict):
             self._validate_value = lambda value: True
         else:
             if not callable(value_validator):
-                raise "value_validator should be callable or None"
+                raise TypeError("value_validator should be a callable or None")
             self._validate_value = value_validator
         if not key_validator:
             self._validate_key = lambda key: True
         else:
             if not callable(key_validator):
-                raise "key_validator should be callable or None"
+                raise TypeError("key_validator should be a callable or None")
             self._validate_key = key_validator
         if iterable:
             self.update(iterable)
@@ -22,9 +22,9 @@ class RestrictedDict(dict):
     
     def __setitem__(self, key, value):
         if not self._validate_key(key):
-            raise "Invalid key type, need %s but get %s" % ((t.__name__ for t in self._key_types), type(key))
+            raise ValueError("Invalid key type, need %s but get %s" % ((t.__name__ for t in self._key_types), type(key)))
         if not self._validate_value(value):
-            raise "Invalid value type, need %s but get %s" % ((t.__name__ for t in self._types), type(value))
+            raise ValueError("Invalid value type, need %s but get %s" % ((t.__name__ for t in self._types), type(value)))
         return super().__setitem__(key, value)
 
     def can_merge(self, _dict):
@@ -40,7 +40,7 @@ class RestrictedDict(dict):
         if trim:
             d = self.trim(d)
         if not self.can_merge(d):
-            raise "Cannot update dict because there are invalid keys or values in %s" % str(d)
+            raise ValueError("Cannot update dict because there are invalid keys or values in %s" % str(d))
         return super().update(d)
 
 
@@ -81,19 +81,19 @@ class RestrictedList(list):
     
     def append(self, obj):
         if not self._validate(obj):
-            raise "Value %s can not put in this RestrictList" % str(obj)
+            raise ValueError("Value %s can not put in this RestrictList" % str(obj))
         return super().append(obj)
 
     def insert(self, index, obj):
         if not self._validate(obj):
-            raise "Value %s can not put in this RestrictList" % str(obj)
+            raise ValueError("Value %s can not put in this RestrictList" % str(obj))
         return super().insert(index, obj)
 
     def extend(self, iterable, trim=False):
         if not trim:
             cond = map(self._validate, iterable)
             if not all(cond):
-                raise "Contains value that cannot be put into this RestricList"
+                raise ValueError("Contains value that cannot be put into this RestricedList")
         else:
             iterable = [o for o in iterable if self._validate(o)]
         return super().extend(iterable)
