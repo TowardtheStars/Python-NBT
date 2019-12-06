@@ -262,10 +262,16 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
 
     _type_id = TAG_COMPOUND
     
-    def __init__(self, buffer=None):
+    def __init__(self, value=None, **kwargs):
         _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
-        if buffer:
-            self._read_buffer(buffer)
+        __buffer = kwargs.get('buffer', None) if hasattr(kwargs.get('buffer', None), 'read') else value
+        if hasattr(__buffer, 'read'):
+            self._read_buffer(__buffer)
+        elif isinstance(value, dict):
+            self.update(value)
+        else:
+            pass
+            # Do actually nothing
 
     def _read_buffer(self, buffer):
         while True:
