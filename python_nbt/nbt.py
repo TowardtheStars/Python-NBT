@@ -133,7 +133,7 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
     Just for code reuse and better interfaces
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, value, **kwargs):
         
         # Left self._validate unfilled
         # This should be filled by subclasses ahead of calling this initializer
@@ -144,13 +144,10 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
         __buffer = None
         if hasattr(kwargs.get('buffer', None), 'read'):
             __buffer = kwargs.get('buffer')
-        elif len(args) > 0:
-            if hasattr(args[0], 'read'):
-                __buffer = args[0]
-            elif hasattr(args[0], '__iter__'):
-                self.extend(args[0], trim=False)
-            else:
-                self.extend(args, trim=False)
+        elif hasattr(value, 'read'):
+            __buffer = value
+        elif hasattr(value, '__iter__'):
+            self.extend(value, trim=False)
         else:
             pass
             # Do nothing
@@ -304,9 +301,9 @@ class NBTTagByteArray(NBTTagContainerList):
 
     _type_id = TAG_BYTE_ARRAY
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, value=None, **kwargs):
         self._validate = lambda v: isinstance(v, int) and v in range(-0x80, 0x80)
-        super().__init__(*args, **kwargs)
+        super().__init__(value=value, **kwargs)
         
     
     def _read_buffer(self, buffer):
@@ -327,9 +324,9 @@ class NBTTagIntArray(NBTTagContainerList):
 
     _type_id = TAG_INT_ARRAY
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, value=None, **kwargs):
         self._validate=lambda v: isinstance(v, int) and v in range(-0x80000000, 0x80000000)
-        super().__init__(*args, **kwargs)
+        super().__init__(value=value, **kwargs)
         
 
     def _read_buffer(self, buffer):
@@ -353,9 +350,9 @@ class NBTTagLongArray(NBTTagContainerList):
 
     _type_id = TAG_LONG_ARRAY
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, value=None, **kwargs):
         self._validate = lambda v: isinstance(v, int) and v in range(-0x8000000000000000, 0x8000000000000000)
-        super().__init__(*args, **kwargs)
+        super().__init__(value=None, **kwargs)
 
     def _read_buffer(self, buffer):
         length = NBTTagInt(buffer=buffer).value
@@ -378,7 +375,7 @@ class NBTTagList(NBTTagContainerList):
 
     _type_id = TAG_LIST
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, value=None, **kwargs):
         """
         If you are creating a NBTTagList yourself,
         Please specify a tag_type (must be a subclass of NBTTagBase)
@@ -389,7 +386,7 @@ class NBTTagList(NBTTagContainerList):
         else:
             self._tag_type_id = None
         self._validate = lambda v: isinstance(v, self.tag_type)
-        super().__init__(*args, **kwargs)
+        super().__init__(value=value, **kwargs)
 
     @property
     def tag_type_id(self):
