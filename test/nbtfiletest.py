@@ -67,9 +67,13 @@ class WriteFileTest(unittest.TestCase):
 
     def test_write(self):
         nbt.write_to_nbt_file('test/test_write.nbt', self.tag)
+        read_tag = nbt.read_from_nbt_file('test/test_write.nbt')
+        self.assertEqual(read_tag, self.tag)
         
 
+class JsonTest(unittest.TestCase):
+    pass
 
 unittest.main()
-# print(ReadFileTest.tag)
+
 

@@ -1,6 +1,5 @@
 from struct import Struct, error as StructError
 from gzip import GzipFile
-
 from . import _util
 
 TAG_END         =  0
@@ -228,7 +227,7 @@ class NBTTagFloat(NBTTagSingleValue):
 
 class NBTTagDouble(NBTTagSingleValue):
 
-    _type_id = TAG_FLOAT
+    _type_id = TAG_DOUBLE
     fmt = Struct(">d")
 
     def __init__(self, value=.0, **kwargs):
@@ -304,6 +303,14 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     def _value_from_json(self, json_obj):
         for k, v in json_obj['value'].items():
             self[k] = from_json(v)
+
+    @property
+    def value(self):
+        return self
+
+    def __eq__(self, value):
+        return all([value.get(k, None) == v for k, v in self.items()])
+            
 
 
 class NBTTagByteArray(NBTTagContainerList):
