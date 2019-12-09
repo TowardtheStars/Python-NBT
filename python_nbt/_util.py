@@ -146,17 +146,34 @@ class _JavaIntegers:
         return 1 << self.bit_length
 
     def convert(self, v=0, base=10):
-        if isinstance(v, str):
-            result = int(v, base=base)
-        elif isinstance(v, int):
-            result = v
-        else:
-            raise TypeError("Can only convert int or str!")
-        
+        """
+        Convert a python int, or objects that can be converted to int,
+        into Java type integers.
+        This is helful when writing binary file for Java programs to read,
+        such as NBT
+
+        For example:
+        ```
+        >>> from struct import Struct
+        >>> int_struct = Struct(">i")
+        >>> 0xaccc821c
+        2899083804
+        >>> JavaInteger(0xaccc821c)
+        -1395883492
+        >>> int_struct.pack(0xaccc821c)
+        Traceback (most recent call last):
+          File "<pyshell#15>", line 1, in <module>
+            int_struct.pack(0xaccc821c)
+        struct.error: argument out of range
+        >>> int_struct.pack(JavaInteger(0xaccc821c))
+        b'\\xac\\xcc\\x82\\x1c'
+        ```
+        """
+        result = int(v, base=base)
         if result not in self.num_range:
-            result = result & self.valid_bits
             if result & self.sign_bit:
-                result = ~result + 1
+                result = -(~result + 1)
+            result = result & self.valid_bits
         return result
 
     def validate(self, v):
