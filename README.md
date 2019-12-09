@@ -49,7 +49,7 @@ If you want to export NBT in json, you can use `NBTTagBase.json_obj(full_json=Tr
 
 If you want to import NBT from a json object, you can use `nbt.from_json(json_obj)` to do so. This function will return an NBT object. And its parameter must be as same format as what `NBTTagBase.json_obj(full_json=True)` exports.
 
-**Note:** Unable to import json format into NBT now, this feature is under developing
+**Note:** Unable to import json format into NBT now, this feature is under developing.
 
 ## Future features
 
@@ -68,3 +68,4 @@ If you want to import NBT from a json object, you can use `nbt.from_json(json_ob
   - [ ] [FTB Quests](https://github.com/FTBTeam/FTB-Quests) [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ftb-quests)
   - [ ] [GameStages](https://github.com/Darkhax-Minecraft/Game-Stages) [CurseForge](https://minecraft.curseforge.com/projects/game-stages)
   - [ ] Recognize blocks and items form mods in World according to NEI exports
+- [ ] A detailed doc/wiki

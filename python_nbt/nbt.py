@@ -171,7 +171,7 @@ class NBTTagByte(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
     
     def _validate(self, v):
-        return isinstance(v, int) and v in range(-0x80, 0x80)
+        return _util.JavaByte.validate(v)
 
 
 class NBTTagShort(NBTTagSingleValue):
@@ -183,7 +183,7 @@ class NBTTagShort(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, int) and v in range(-0x8000, 0x8000)
+        return _util.JavaShort.validate(v)
 
 
 class NBTTagInt(NBTTagSingleValue):
@@ -195,7 +195,7 @@ class NBTTagInt(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, int) and v in range(-0x80000000, 0x80000000)
+        return _util.JavaInteger.validate(v)
 
 
 class NBTTagLong(NBTTagSingleValue):
@@ -207,7 +207,7 @@ class NBTTagLong(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, int) and v in range(-0x8000000000000000, 0x8000000000000000)
+        return _util.JavaLong.validate(v)
 
 
 class NBTTagFloat(NBTTagSingleValue):
@@ -308,7 +308,7 @@ class NBTTagByteArray(NBTTagContainerList):
     _type_id = TAG_BYTE_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate = lambda v: isinstance(v, int) and v in range(-0x80, 0x80)
+        self._validate = _util.JavaByte.validate
         super().__init__(value=value, **kwargs)
         
     
@@ -331,7 +331,7 @@ class NBTTagIntArray(NBTTagContainerList):
     _type_id = TAG_INT_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate=lambda v: isinstance(v, int) and v in range(-0x80000000, 0x80000000)
+        self._validate = _util.JavaInteger.validate
         super().__init__(value=value, **kwargs)
         
 
@@ -357,8 +357,7 @@ class NBTTagLongArray(NBTTagContainerList):
     _type_id = TAG_LONG_ARRAY
 
     def __init__(self, value=None, **kwargs):
-        self._validate = lambda v: isinstance(v, int) and v in range(-0x8000000000000000, 0x8000000000000000)
-        super().__init__(value=None, **kwargs)
+        self._validate = _util.JavaLong.validate
 
     def _read_buffer(self, buffer):
         length = NBTTagInt(buffer=buffer).value
