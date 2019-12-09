@@ -47,7 +47,7 @@ class NBTTagBase:
     def value(self):
         return self._value
 
-    def _value_json_obj(self):
+    def _value_json_obj(self, full_json=True):
         return self.value
 
     def json_obj(self, full_json=True):
@@ -57,9 +57,9 @@ class NBTTagBase:
             set to False to get a cleaner json object
         """
         if full_json:
-            return {"type_id":self.type_id, "value": self._value_json_obj()}
+            return {"type_id":self.type_id, "value": self._value_json_obj(full_json)}
         else:
-            return self._value_json_obj()
+            return self._value_json_obj(full_json)
 
     def __str__(self):
         return str(self.json_obj())
@@ -71,7 +71,7 @@ class NBTTagBase:
         pass
 
     def __eq__(self, value):
-        return self.type_id == getattr(value, 'type_id') and self.value == getattr(value, 'value')
+        return (self.type_id == getattr(value, 'type_id', None) and self.value == getattr(value, 'value', None)) or self.value == value
 
 
 class NBTTagEnd(NBTTagBase):
@@ -125,7 +125,7 @@ class NBTTagSingleValue(NBTTagBase):
     def _write_buffer(self, buffer):
         buffer.write(self.fmt.pack(self.value))
 
-    def _value_json_obj(self):
+    def _value_json_obj(self, full_json=True):
         return self.value
 
     def _value_from_json(self, json_obj):
@@ -246,7 +246,7 @@ class NBTTagString(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, str) and len(self.value) < 0x8000
+        return isinstance(v, str) and len(v) < 0x8000
 
     def _read_buffer(self, buffer):
         length = NBTTagShort(buffer=buffer).value
@@ -260,7 +260,6 @@ class NBTTagString(NBTTagSingleValue):
         length = NBTTagShort(len(byte_code))
         length._write_buffer(buffer)
         buffer.write(byte_code)
-
 
 class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
 
@@ -296,10 +295,10 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
             tag._write_buffer(buffer)
         NBTTagEnd()._write_buffer(buffer)
 
-    def _value_json_obj(self):
+    def _value_json_obj(self, full_json=True):
         result = {}
         for key, value in self.items():
-            result[key] = value.json_obj()
+            result[key] = value.json_obj(full_json=full_json)
         return result
 
     def _value_from_json(self, json_obj):
@@ -362,6 +361,7 @@ class NBTTagLongArray(NBTTagContainerList):
 
     def __init__(self, value=None, **kwargs):
         self._validate = _util.JavaLong.validate
+        super().__init__(value=value, **kwargs)
 
     def _read_buffer(self, buffer):
         length = NBTTagInt(buffer=buffer).value
@@ -419,20 +419,20 @@ class NBTTagList(NBTTagContainerList):
         length = NBTTagInt(len(self))
         length._write_buffer(buffer)
         for i, tag in enumerate(self.value):
-            if tag.type_id != self.type_id:
+            if tag.type_id != self.tag_type_id:
                 raise ValueError(
                     "List element %d(%s) has type %d != container type %d" %
-                    (i, tag, tag.idx, self.tagID))
+                    (i, tag, tag.type_id, self.tag_type_id))
             tag._write_buffer(buffer)
 
-    def _value_json_obj(self):
-        return [tag._value_json_obj() for tag in self.value]
+    def _value_json_obj(self, full_json=True):
+        return [tag._value_json_obj(full_json) for tag in self.value]
 
     def json_obj(self, full_json=True):
         """
         Add tag type id into result 
         """
-        r = super().json_obj(self, full_json=False)
+        r = super().json_obj(full_json=full_json)
         r['tag_type_id'] = self.tag_type_id
         return r
 
