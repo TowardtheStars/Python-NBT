@@ -110,4 +110,60 @@ class TypeRestrictedList(RestrictedList):
         return self._types
 
 
+class _JavaIntegers:
+    _bit_length = 0
+    _valid_bits = 0
+    def __init__(self, bit_length):
+        self._bit_length = bit_length
+        self.__call__ = self.convert
+        self._valid_bits = 0xFF
+        for i in range(bit_length // 8 - 1):
+            self._valid_bits << 8
+            self._valid_bits += 0xFF
+
+    @property
+    def bit_length(self):
+        return self._bit_length
+    
+    @property
+    def max_value(self):
+        return 1 << (self.bit_length - 1)
+    
+    @property
+    def min_value(self):
+        return -self.max_value
+    
+    @property
+    def num_range(self):
+        return range(self.min_value, self.max_value)
+
+    @property
+    def valid_bits(self):
+        return self._valid_bits
+
+    @property
+    def sign_bit(self):
+        return 1 << self.bit_length
+
+    def convert(self, v=0, base=10):
+        if isinstance(v, str):
+            result = int(v, base=base)
+        elif isinstance(v, int):
+            result = v
+        else:
+            raise TypeError("Can only convert int or str!")
         
+        if result not in self.num_range:
+            result = result & self.valid_bits
+            if result & self.sign_bit:
+                result = ~result + 1
+        return result
+
+    def validate(self, v):
+        return isinstance(v, int) and v in self.num_range
+            
+    
+JavaByte = _JavaIntegers(8)
+JavaShort = _JavaIntegers(16)
+JavaInteger = _JavaIntegers(32)
+JavaLong = _JavaIntegers(64)
