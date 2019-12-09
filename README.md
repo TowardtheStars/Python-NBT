@@ -49,11 +49,11 @@ If you want to export NBT in json, you can use `NBTTagBase.json_obj(full_json=Tr
 
 If you want to import NBT from a json object, you can use `nbt.from_json(json_obj)` to do so. This function will return an NBT object. And its parameter must be as same format as what `NBTTagBase.json_obj(full_json=True)` exports.
 
-**Note:** Unable to import json format into NBT now, this feature is under developing.
+**Note:** You can import json format into NBT now, however, this feature is under developing and needs tests.
 
 ## Future features
 
-- [ ] More json compat
+- [ ] More json compat (Need tests)
   - [x] Convert json into NBT
   - [x] Better and configurable json output (omitting NBT types)
 - [ ] Convenient classes for reading and writing Minecraft saves files
