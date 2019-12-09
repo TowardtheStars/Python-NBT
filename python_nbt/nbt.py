@@ -70,6 +70,10 @@ class NBTTagBase:
     def _value_from_json(self, json_value):
         pass
 
+    def __eq__(self, value):
+        return self.type_id == getattr(value, 'type_id') and self.value == getattr(value, 'value')
+
+
 class NBTTagEnd(NBTTagBase):
     """
     This is just for File I/O
