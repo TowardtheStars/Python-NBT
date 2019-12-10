@@ -72,7 +72,7 @@ Ticked entries are finished.
   - [ ] [FTB Quests](https://github.com/FTBTeam/FTB-Quests) [(CurseForge Link)](https://www.curseforge.com/minecraft/mc-mods/ftb-quests)
   - [ ] [GameStages](https://github.com/Darkhax-Minecraft/Game-Stages) [(CurseForge Link)](https://minecraft.curseforge.com/projects/game-stages)
   - [ ] Recognize blocks and items form mods in World according to NEI exports
-- [ ] A detailed doc/wiki
+- [x] A detailed ~~doc/~~wiki
 - [ ] More convenient interfaces for NBT (try to fully abandon `value` property, and makes everthing just it should be)
   - [ ] Operators for numeric tags
     - [ ] +, -, *, /
