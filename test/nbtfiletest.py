@@ -71,9 +71,6 @@ class WriteFileTest(unittest.TestCase):
         self.assertEqual(read_tag, self.tag)
         
 
-class JsonTest(unittest.TestCase):
-    pass
-
 unittest.main()
 
 

@@ -1,0 +1,119 @@
+{
+  "type_id": 10,
+  "value": {
+    "long_array": {
+      "type_id": 12,
+      "value": [
+        1111111111111111111,
+        2222222222222222222,
+        3333333333333333333
+      ]
+    },
+    "nbt_version": {
+      "type_id": 2,
+      "value": 19133
+    },
+    "description": {
+      "type_id": 9,
+      "value": [
+        "Python-NBT test",
+        "Created on 2019/12/09"
+      ],
+      "tag_type_id": 8
+    },
+    "pi": {
+      "type_id": 6,
+      "value": 3.141592653589746
+    },
+    "int_array": {
+      "type_id": 11,
+      "value": [
+        1048576,
+        2097152,
+        4194304,
+        8388608,
+        16777216
+      ]
+    },
+    "test_version": {
+      "type_id": 10,
+      "value": {
+        "major": {
+          "type_id": 3,
+          "value": 0
+        },
+        "minor": {
+          "type_id": 3,
+          "value": 0
+        },
+        "build": {
+          "type_id": 3,
+          "value": 1
+        }
+      }
+    },
+    "bytes_helloworld": {
+      "type_id": 7,
+      "value": [
+        72,
+        101,
+        108,
+        108,
+        111,
+        44,
+        32,
+        119,
+        111,
+        114,
+        108,
+        100,
+        33
+      ]
+    },
+    "int_tag": {
+      "type_id": 3,
+      "value": 1048576
+    },
+    "tag_type": {
+      "type_id": 1,
+      "value": 10
+    },
+    "long_tag": {
+      "type_id": 4,
+      "value": 1510346461649
+    },
+    "float_tag": {
+      "type_id": 5,
+      "value": 2.718280076980591
+    },
+    "multi_nesting": {
+      "type_id": 10,
+      "value": {
+        "layer1": {
+          "type_id": 10,
+          "value": {
+            "layer2": {
+              "type_id": 10,
+              "value": {
+                "layer3": {
+                  "type_id": 10,
+                  "value": {
+                    "layer4": {
+                      "type_id": 10,
+                      "value": {
+                        "yay": {
+                          "type_id": 8,
+                          "value": "yay!"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

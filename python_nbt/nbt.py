@@ -508,4 +508,5 @@ def from_json(json_obj):
         raise ValueError("Unrecognized tag type %d" % type.value)
     tag = TAGLIST[type_id]()
     tag._value_from_json(json_obj)
+    return tag
 
