@@ -3,4 +3,4 @@ __all__ = ["nbt"]
 
 from . import nbt
 
-VERSION = (1, 1, 0)
+VERSION = (1, 1, 1)

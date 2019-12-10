@@ -440,7 +440,8 @@ class NBTTagList(NBTTagContainerList):
         Add tag type id into result 
         """
         r = super().json_obj(full_json=full_json)
-        r['tag_type_id'] = self.tag_type_id
+        if full_json:
+            r['tag_type_id'] = self.tag_type_id
         return r
 
     def _value_from_json(self, json_obj):
