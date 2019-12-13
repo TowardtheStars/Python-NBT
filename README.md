@@ -10,6 +10,12 @@ Based on NBT Version: 19133 (Current version used by Minecraft)
 
 From official [Minecraft Wiki](https://minecraft.gamepedia.com/NBT_format).
 
+## Installation
+
+```bash
+pip install Python-NBT
+```
+
 ## Usage
 
 ### Read an NBT file
