@@ -115,10 +115,9 @@ class _JavaIntegers:
     _valid_bits = 0
     def __init__(self, bit_length):
         self._bit_length = bit_length
-        self.__call__ = self.convert
         self._valid_bits = 0xFF
         for i in range(bit_length // 8 - 1):
-            self._valid_bits << 8
+            self._valid_bits *= 256
             self._valid_bits += 0xFF
 
     @property
@@ -143,9 +142,13 @@ class _JavaIntegers:
 
     @property
     def sign_bit(self):
-        return 1 << self.bit_length
+        return 1 << (self.bit_length - 1)
 
-    def convert(self, v=0, base=10):
+    @property
+    def number_bits(self):
+        return (self.valid_bits + 1) // 2 - 1
+
+    def to_signed(self, v='0', base=10):
         """
         Convert a python int, or objects that can be converted to int,
         into Java type integers.
@@ -165,15 +168,48 @@ class _JavaIntegers:
           File "<pyshell#15>", line 1, in <module>
             int_struct.pack(0xaccc821c)
         struct.error: argument out of range
-        >>> int_struct.pack(JavaInteger(0xaccc821c))
+        >>> int_struct.pack(JavaInteger.to_signed(0xaccc821c))
         b'\\xac\\xcc\\x82\\x1c'
         ```
         """
         result = int(v, base=base)
+        result = result % (self.valid_bits + 1)
         if result not in self.num_range:
             if result & self.sign_bit:
-                result = -(~result + 1)
-            result = result & self.valid_bits
+                result -= 1
+                result -= self.valid_bits
+        return result
+
+        def to_unsigned(self, v='0', base=10):
+        """
+        Convert a python int, or objects that can be converted to int,
+        into Java type integers.
+        This is helful when writing binary file for Java programs to read,
+        such as NBT
+
+        For example:
+        ```
+        >>> from struct import Struct
+        >>> int_struct = Struct(">i")
+        >>> 0xaccc821c
+        2899083804
+        >>> JavaInteger(0xaccc821c)
+        -1395883492
+        >>> int_struct.pack(0xaccc821c)
+        Traceback (most recent call last):
+          File "<pyshell#15>", line 1, in <module>
+            int_struct.pack(0xaccc821c)
+        struct.error: argument out of range
+        >>> int_struct.pack(JavaInteger.to_signed(0xaccc821c))
+        b'\\xac\\xcc\\x82\\x1c'
+        ```
+        """
+        result = int(v, base=base)
+        result = result % (self.valid_bits + 1)
+        if result not in self.num_range:
+            if result < 0:
+                result += 1
+                result += self.valid_bits
         return result
 
     def validate(self, v):
