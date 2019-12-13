@@ -103,6 +103,9 @@ class NBTTagSingleValue(NBTTagBase):
     fmt = None
 
     def __init__(self, value=None, **kwargs):
+        if value:
+            if not self._validate(value):
+                raise ValueError("Invalide value %s for class %s." % (value, self.__class__.__name__))
         super().__init__(value=value, **kwargs)
 
     @property
@@ -222,7 +225,7 @@ class NBTTagFloat(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, float)
+        return isinstance(v, (int, float))
 
 
 class NBTTagDouble(NBTTagSingleValue):
@@ -234,7 +237,7 @@ class NBTTagDouble(NBTTagSingleValue):
         super().__init__(value=value, **kwargs)
 
     def _validate(self, v):
-        return isinstance(v, float)
+        return isinstance(v, (int, float))
 
 
 class NBTTagString(NBTTagSingleValue):
@@ -398,7 +401,7 @@ class NBTTagList(NBTTagContainerList):
         """
         tag_type = kwargs.get('tag_type', None)
         if tag_type:
-            self._tag_type_id = tag_type.type_id
+            self._tag_type_id = tag_type._type_id
         else:
             self._tag_type_id = None
         self._validate = lambda v: isinstance(v, self.tag_type)
@@ -421,7 +424,7 @@ class NBTTagList(NBTTagContainerList):
 
     def _write_buffer(self, buffer):
         if self.tag_type_id == None:
-            raise ValueError("No type specified for list: %s" % (self.name))
+            raise ValueError("No type specified for NBTTagList: %s" % self.json_obj())
         NBTTagByte(self.tag_type_id)._write_buffer(buffer)
         length = NBTTagInt(len(self))
         length._write_buffer(buffer)
