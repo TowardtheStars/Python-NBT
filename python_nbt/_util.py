@@ -180,7 +180,7 @@ class _JavaIntegers:
                 result -= self.valid_bits
         return result
 
-        def to_unsigned(self, v='0', base=10):
+    def to_unsigned(self, v='0', base=10):
         """
         Convert a python int, or objects that can be converted to int,
         into Java type integers.
@@ -200,7 +200,7 @@ class _JavaIntegers:
           File "<pyshell#15>", line 1, in <module>
             int_struct.pack(0xaccc821c)
         struct.error: argument out of range
-        >>> int_struct.pack(JavaInteger.to_signed(0xaccc821c))
+        >>> int_struct.pack(JavaInteger.to_unsigned(0xaccc821c))
         b'\\xac\\xcc\\x82\\x1c'
         ```
         """
