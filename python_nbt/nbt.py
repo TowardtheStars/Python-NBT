@@ -16,6 +16,8 @@ TAG_COMPOUND    = 10
 TAG_INT_ARRAY   = 11
 TAG_LONG_ARRAY  = 12
 
+TAGLIST = {}
+
 class NBTTagBase:
 
     _type_id = None
@@ -72,6 +74,9 @@ class NBTTagBase:
     def __eq__(self, value):
         return (self.type_id == getattr(value, 'type_id', None) and self.value == getattr(value, 'value', None)) or self.value == value
 
+    def __init_subclass__(clz):
+        if clz._type_id is not None:
+            TAGLIST[clz._type_id] = clz
 
 class NBTTagEnd(NBTTagBase):
     """
@@ -141,7 +146,7 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
 
     def __init__(self, value, **kwargs):
         
-        # Left self._validate unfilled
+        # Leave self._validate unfilled
         # This should be filled by subclasses ahead of calling this initializer
         # If unfilled, self._validate should be filled as default set in RestrictedList
         if not self._validate:
@@ -261,59 +266,7 @@ class NBTTagString(NBTTagSingleValue):
         byte_code = self.value.encode("utf-8")
         length = NBTTagShort(len(byte_code))
         length._write_buffer(buffer)
-        buffer.write(byte_code)
-
-class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
-
-    _type_id = TAG_COMPOUND
-    
-    def __init__(self, value=None, **kwargs):
-        _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
-        __buffer = kwargs.get('buffer', None) if hasattr(kwargs.get('buffer', None), 'read') else value
-        if hasattr(__buffer, 'read'):
-            self._read_buffer(__buffer)
-        elif isinstance(value, dict):
-            self.update(value)
-        else:
-            pass
-            # Do actually nothing
-
-    def _read_buffer(self, buffer):
-        while True:
-            _type = NBTTagByte(buffer=buffer).value
-            if _type == TAG_END:
-                break
-            else:
-                name = NBTTagString(buffer=buffer).value
-                if not _type in TAGLIST.keys():
-                    raise ValueError("Unrecognized tag type %d" % _type)
-                tag = TAGLIST[_type](buffer=buffer)
-                self[name] = tag
-
-    def _write_buffer(self, buffer):
-        for key, tag in self.items():
-            NBTTagByte(value=tag.type_id)._write_buffer(buffer)
-            NBTTagString(value=key)._write_buffer(buffer)
-            tag._write_buffer(buffer)
-        NBTTagEnd()._write_buffer(buffer)
-
-    def _value_json_obj(self, full_json=True):
-        result = {}
-        for key, value in self.items():
-            result[key] = value.json_obj(full_json=full_json)
-        return result
-
-    def _value_from_json(self, json_obj):
-        for k, v in json_obj['value'].items():
-            self[k] = from_json(v)
-
-    @property
-    def value(self):
-        return self
-
-    def __eq__(self, value):
-        return all([value.get(k, None) == v for k, v in self.items()])
-            
+        buffer.write(byte_code)           
 
 
 class NBTTagByteArray(NBTTagContainerList):
@@ -452,22 +405,78 @@ class NBTTagList(NBTTagContainerList):
         self._tag_type_id = json_obj['tag_type_id']
         self.extend([self.tag_type(v) for v in json_obj['value']])
 
+class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
 
-TAGLIST = {
-    TAG_END         : NBTTagEnd, 
-    TAG_BYTE        : NBTTagByte, 
-    TAG_SHORT       : NBTTagShort,
-    TAG_INT         : NBTTagInt, 
-    TAG_LONG        : NBTTagLong, 
-    TAG_FLOAT       : NBTTagFloat,
-    TAG_DOUBLE      : NBTTagDouble, 
-    TAG_BYTE_ARRAY  : NBTTagByteArray,
-    TAG_STRING      : NBTTagString, 
-    TAG_LIST        : NBTTagList,
-    TAG_COMPOUND    : NBTTagCompound,
-    TAG_INT_ARRAY   : NBTTagIntArray,
-    TAG_LONG_ARRAY  : NBTTagLongArray
-}
+    _type_id = TAG_COMPOUND
+    
+    def _read_buffer(self, buffer):
+        while True:
+            _type = NBTTagByte(buffer=buffer).value
+            if _type == TAG_END:
+                break
+            else:
+                name = NBTTagString(buffer=buffer).value
+                if not _type in TAGLIST.keys():
+                    raise ValueError("Unrecognized tag type %d" % _type)
+                tag = TAGLIST[_type](buffer=buffer)
+                self[name] = tag
+
+    def _write_buffer(self, buffer):
+        for key, tag in self.items():
+            NBTTagByte(value=tag.type_id)._write_buffer(buffer)
+            NBTTagString(value=key)._write_buffer(buffer)
+            tag._write_buffer(buffer)
+        NBTTagEnd()._write_buffer(buffer)
+
+    def _value_json_obj(self, full_json=True):
+        result = {}
+        for key, value in self.items():
+            result[key] = value.json_obj(full_json=full_json)
+        return result
+
+    def _value_from_json(self, json_obj):
+        for k, v in json_obj['value'].items():
+            self[k] = from_json(v)
+
+    @property
+    def value(self):
+        return self
+
+    def __eq__(self, value):
+        return all([value.get(k, None) == v for k, v in self.items()])
+
+    def setTag(self, key, value):
+        self[key] = value
+    
+    def __init__(self, value=None, **kwargs):
+        _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
+        __buffer = kwargs.get('buffer', None) if hasattr(kwargs.get('buffer', None), 'read') else value
+        if hasattr(__buffer, 'read'):
+            self._read_buffer(__buffer)
+        elif isinstance(value, dict):
+            self.update(value)
+        else:
+            pass
+            # Generate a empty TagCompound
+        
+        # Add type specified getter and setters
+        def _setTagWithType(_type):
+            def setter(self, key, value):
+                self[key] = _type(value)
+            return setter
+
+        def _getTagWithType(_type):
+            def getter(self, key):
+                return self.get(key, _type()).value
+            return getter
+        import types
+        for cls in TAGLIST.values():
+            # Since TAGLIST was completly filled when subclass-ing
+            # And self.__init__ will be called when instanciating
+            # Add type-specified methods here shall not raise Error
+            name = cls.__name__[3:]
+            setattr(self, 'set' + name, types.MethodType(_setTagWithType(cls), self))
+            setattr(self, 'get' + name, types.MethodType(_getTagWithType(cls), self))
 
 
 # Map Minecraft Wiki names to class names
@@ -486,6 +495,26 @@ TAG_String     = NBTTagString
 TAG_List       = NBTTagList
 TAG_Compound   = NBTTagCompound
 TAG_End        = NBTTagEnd
+
+# Also:
+# =============================
+
+TagBase        = NBTTagBase
+TagByte        = NBTTagByte
+TagShort       = NBTTagShort
+TagInt         = NBTTagInt
+TagLong        = NBTTagLong
+TagFloat       = NBTTagFloat
+TagDouble      = NBTTagDouble
+TagByteArray   = NBTTagByteArray
+TagIntArray    = NBTTagIntArray
+TagLongArray   = NBTTagLongArray
+TagString      = NBTTagString
+TagList        = NBTTagList
+TagCompound    = NBTTagCompound
+TagEnd         = NBTTagEnd
+
+# =============================
 
 def read_from_nbt_file(file):
     """
@@ -513,4 +542,3 @@ def from_json(json_obj):
     tag = TAGLIST[type_id]()
     tag._value_from_json(json_obj)
     return tag
-
