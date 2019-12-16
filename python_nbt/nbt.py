@@ -75,7 +75,7 @@ class NBTTagBase:
         return (self.type_id == getattr(value, 'type_id', None) and self.value == getattr(value, 'value', None)) or self.value == value
 
     def __init_subclass__(clz):
-        if clz._type_id is not None:
+        if clz._type_id is not None and cls._type_id not in TAGLIST.keys():
             TAGLIST[clz._type_id] = clz
 
 class NBTTagEnd(NBTTagBase):
@@ -542,3 +542,4 @@ def from_json(json_obj):
     tag = TAGLIST[type_id]()
     tag._value_from_json(json_obj)
     return tag
+    
