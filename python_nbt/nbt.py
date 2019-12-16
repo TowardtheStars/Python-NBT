@@ -1,6 +1,7 @@
 from struct import Struct, error as StructError
 from gzip import GzipFile
 from . import _util
+import warnings
 
 TAG_END         =  0
 TAG_BYTE        =  1
@@ -74,9 +75,13 @@ class NBTTagBase:
     def __eq__(self, value):
         return (self.type_id == getattr(value, 'type_id', None) and self.value == getattr(value, 'value', None)) or self.value == value
 
-    def __init_subclass__(clz):
-        if clz._type_id is not None and cls._type_id not in TAGLIST.keys():
-            TAGLIST[clz._type_id] = clz
+    def __init_subclass__(cls):
+        if cls._type_id is not None:
+            if cls._type_id not in TAGLIST.keys(): 
+            # If a subclass doesn't have _type_id, don't add it into TAGLIST
+            # Prevent Overriding TAGLIST when user subclassing
+            # Still available for adding items int TAGLIST
+                TAGLIST[cls._type_id] = cls
 
 class NBTTagEnd(NBTTagBase):
     """
@@ -451,18 +456,22 @@ class NBTTagCompound(NBTTagBase, _util.TypeRestrictedDict):
     def __init__(self, value=None, **kwargs):
         _util.TypeRestrictedDict.__init__(self, value_types=NBTTagBase, key_types=str)
         __buffer = kwargs.get('buffer', None) if hasattr(kwargs.get('buffer', None), 'read') else value
-        if hasattr(__buffer, 'read'):
+        if hasattr(__buffer, 'read'):   # If there is a buffer, read from it
             self._read_buffer(__buffer)
-        elif isinstance(value, dict):
+        elif isinstance(value, dict):   # Copy an NBTTagCompound, or something alike, if no buffer available
             self.update(value)
-        else:
+        elif value:                     # Other values are illegal
+            raise ValueError('Illegal value %s for %s!' % (value, self.__class__.__name__))
+        else:                           # Generate an empty TagCompound
             pass
-            # Generate a empty TagCompound
         
         # Add type specified getter and setters
         def _setTagWithType(_type):
             def setter(self, key, value):
-                self[key] = _type(value)
+                if not isinstance(value, _type):    # If not an NBT object for the specified type, convert it to one
+                    self[key] = _type(value)    
+                else:                               # If it already is, just add.
+                    self[key] = value
             return setter
 
         def _getTagWithType(_type):
