@@ -173,7 +173,7 @@ class NBTTagContainerList(NBTTagBase, _util.RestrictedList):
 
     @property
     def value(self):
-        return self[:]
+        return self
 
 
 # == Actual NBT tag types from here ==
@@ -372,6 +372,15 @@ class NBTTagList(NBTTagContainerList):
     @property
     def tag_type(self):
         return TAGLIST.get(self._tag_type_id, NBTTagBase)
+
+    @tag_type.setter
+    def tag_type(self, _type):
+        assert len(self) != 0 , "Cannot modify tag type when NBTTagList is not empty!"
+        
+        if hasattr(_type, '_type_id') and _type._type_id in TAGLIST.keys():
+            self._tag_type_id = _type._type_id
+        else:
+            raise AttributeError("No valid type id found for type %s" % repr(_type))
 
     def _read_buffer(self, buffer):
         self._tag_type_id = NBTTagByte(buffer=buffer).value

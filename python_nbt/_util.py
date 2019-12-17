@@ -146,7 +146,7 @@ class _JavaIntegers:
 
     @property
     def number_bits(self):
-        return (self.valid_bits + 1) // 2 - 1
+        return self.sign_bit - 1
 
     def to_signed(self, v='0', base=10):
         """
@@ -172,12 +172,14 @@ class _JavaIntegers:
         b'\\xac\\xcc\\x82\\x1c'
         ```
         """
-        result = int(v, base=base)
-        result = result % (self.valid_bits + 1)
-        if result not in self.num_range:
-            if result & self.sign_bit:
-                result -= 1
-                result -= self.valid_bits
+        result = v
+        if isinstance(v, str):
+            result = int(v, base=base)
+        
+        result = result & self.valid_bits
+        if result & self.sign_bit:
+            result -= self.valid_bits
+            result -= 1
         return result
 
     def to_unsigned(self, v='0', base=10):
@@ -204,16 +206,18 @@ class _JavaIntegers:
         b'\\xac\\xcc\\x82\\x1c'
         ```
         """
-        result = int(v, base=base)
-        result = result % (self.valid_bits + 1)
-        if result not in self.num_range:
-            if result < 0:
-                result += 1
-                result += self.valid_bits
+        result = v
+        if isinstance(v, str):
+            result = int(v, base=base)
+
+        result = result & self.valid_bits
         return result
 
     def validate(self, v):
         return isinstance(v, int) and v in self.num_range
+
+    def __call__(self, v):
+        return self.to_signed(v)
             
     
 JavaByte = _JavaIntegers(8)
