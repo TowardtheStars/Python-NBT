@@ -51,7 +51,7 @@ The first argument `file` should be a path string or a file stream to the file y
 
 ### Compat with Json
 
-If you want to export NBT in json, you can use `NBTTagBase.json_obj(full_json=True)` to get an json style `dict` that contains all the NBT information.
+If you want to export NBT in json, you can use `NBTTagBase(file).json_obj(full_json=True)` to get an json style `dict` that contains all the NBT information.
 After that, you can use `json` module in Python to do whatever you want.
 If you want a simpler version, which omits type id of an NBT and NBTs inside it, set `full_json` to `False`.
 **Note**: Changing `full_json` to `False` will also turn json dict of nested tags into simple version.
